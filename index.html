@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Typing Game for Kids</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: gradientShift 6s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 3em;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border: 5px solid #fff;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .word-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .current-word {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 8px;
+        }
+
+        .word-letter {
+            display: inline-block;
+            padding: 5px;
+            margin: 2px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .word-letter.correct {
+            background: #2ecc71;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .word-letter.incorrect {
+            background: #e74c3c;
+            color: white;
+            animation: shake 0.5s ease;
+        }
+
+        .word-letter.current {
+            background: #f39c12;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        .word-letter.pending {
+            background: #ecf0f1;
+            color: #34495e;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .typing-area {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .typed-text {
+            font-size: 2.5em;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            line-height: 1.2;
+            border: 3px dashed #bdc3c7;
+            border-radius: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .score-area {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            min-width: 120px;
+        }
+
+        .score-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .score-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .keyboard {
+            display: grid;
+            gap: 8px;
+            padding: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            max-width: 800px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .key {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.8em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .key:hover:before {
+            left: 100%;
+        }
+
+        .letter-key {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .space-key {
+            background: linear-gradient(145deg, #45b7d1, #3498db);
+            color: white;
+            width: 300px;
+        }
+
+        .key:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .key:active, .key.pressed {
+            transform: translateY(0) scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: keyPress 0.3s ease;
+        }
+
+        .key.correct-key {
+            background: linear-gradient(145deg, #2ecc71, #27ae60) !important;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .key.incorrect-key {
+            background: linear-gradient(145deg, #e74c3c, #c0392b) !important;
+            animation: incorrectShake 0.5s ease;
+        }
+
+        @keyframes keyPress {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1.1); }
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .new-word-btn {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .clear-btn {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .difficulty-btn {
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .feedback-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            font-size: 2em;
+            font-weight: bold;
+            z-index: 1000;
+            animation: feedbackPop 1s ease;
+        }
+
+        .feedback-success {
+            color: #2ecc71;
+            border: 5px solid #2ecc71;
+        }
+
+        .feedback-complete {
+            color: #f39c12;
+            border: 5px solid #f39c12;
+        }
+
+        @keyframes feedbackPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .difficulty-indicator {
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .settings-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border: 3px solid #3498db;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .email-input {
+            padding: 12px 20px;
+            border: 2px solid #bdc3c7;
+            border-radius: 25px;
+            font-size: 1.1em;
+            outline: none;
+            transition: border-color 0.3s ease;
+            min-width: 250px;
+            font-family: inherit;
+        }
+
+        .email-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .email-label {
+            font-size: 1.2em;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .email-info {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .save-btn {
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .api-status {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .api-status.premium {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .api-status.basic {
+            background: #f39c12;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2em; }
+            .current-word { font-size: 2.5em; letter-spacing: 4px; }
+            .key { width: 45px; height: 45px; font-size: 1.4em; }
+            .space-key { width: 200px; }
+            .typed-text { font-size: 2em; }
+            .settings-row { flex-direction: column; }
+            .email-input { min-width: 200px; }
+        }
+
+        @media (max-width: 480px) {
+            .current-word { font-size: 2em; letter-spacing: 2px; }
+            .key { width: 35px; height: 35px; font-size: 1.1em; }
+            .space-key { width: 150px; }
+            .typed-text { font-size: 1.5em; }
+            .score-area { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">🎯 Type the Word! 🎯</h1>
+        <p class="subtitle">Type the word you see above!</p>
+    </div>
+
+    <div class="settings-panel">
+        <div class="settings-row">
+            <label class="email-label">📧 Your Email:</label>
+            <input type="email" class="email-input" id="userEmail" placeholder="your.email@example.com" />
+            <button class="save-btn" onclick="saveEmail()">💾 Save</button>
+            <span class="api-status basic" id="apiStatus">Basic (5k chars/day)</span>
+        </div>
+        <div class="email-info">
+            💡 <strong>Why provide email?</strong> Get 50,000 characters/day instead of 5,000 for better translations!<br>
+            🔒 <strong>Privacy:</strong> Only sent to MyMemory API for rate limits. Not stored or shared.
+        </div>
+    </div>
+
+    <div class="game-area">
+        <div class="difficulty-indicator">
+            <span id="difficultyText">Easy Mode</span> 🌟
+        </div>
+
+        <div class="word-display">
+            <div class="current-word" id="currentWord"></div>
+            <div class="translation" id="translationText" style="font-size: 1.8em; color: #7f8c8d; margin-top: 10px; font-style: italic;"></div>
+        </div>
+
+        <div class="typing-area">
+            <div class="typed-text" id="typedText"></div>
+        </div>
+
+        <div class="score-area">
+            <div class="score-item">
+                <span class="score-number" id="correctCount">0</span>
+                <span class="score-label">✅ Correct</span>
+            </div>
+            <div class="score-item">
+                <span class="score-number" id="mistakeCount">0</span>
+                <span class="score-label">❌ Mistakes</span>
+            </div>
+            <div class="score-item">
+                <span class="score-number" id="wordsCompleted">0</span>
+                <span class="score-label">🏆 Words Done</span>
+            </div>
+            <div class="score-item">
+                <span class="score-number" id="streak">0</span>
+                <span class="score-label">🔥 Streak</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="keyboard">
+        <div class="keyboard-row">
+            <button class="key letter-key" data-key="Q">Q</button>
+            <button class="key letter-key" data-key="W">W</button>
+            <button class="key letter-key" data-key="E">E</button>
+            <button class="key letter-key" data-key="R">R</button>
+            <button class="key letter-key" data-key="T">T</button>
+            <button class="key letter-key" data-key="Y">Y</button>
+            <button class="key letter-key" data-key="U">U</button>
+            <button class="key letter-key" data-key="I">I</button>
+            <button class="key letter-key" data-key="O">O</button>
+            <button class="key letter-key" data-key="P">P</button>
+        </div>
+        
+        <div class="keyboard-row">
+            <button class="key letter-key" data-key="A">A</button>
+            <button class="key letter-key" data-key="S">S</button>
+            <button class="key letter-key" data-key="D">D</button>
+            <button class="key letter-key" data-key="F">F</button>
+            <button class="key letter-key" data-key="G">G</button>
+            <button class="key letter-key" data-key="H">H</button>
+            <button class="key letter-key" data-key="J">J</button>
+            <button class="key letter-key" data-key="K">K</button>
+            <button class="key letter-key" data-key="L">L</button>
+        </div>
+        
+        <div class="keyboard-row">
+            <button class="key letter-key" data-key="Z">Z</button>
+            <button class="key letter-key" data-key="X">X</button>
+            <button class="key letter-key" data-key="C">C</button>
+            <button class="key letter-key" data-key="V">V</button>
+            <button class="key letter-key" data-key="B">B</button>
+            <button class="key letter-key" data-key="N">N</button>
+            <button class="key letter-key" data-key="M">M</button>
+        </div>
+        
+        <div class="keyboard-row">
+            <button class="key space-key" data-key=" ">SPACE</button>
+        </div>
+    </div>
+
+    <div class="control-buttons">
+        <button class="btn new-word-btn" onclick="generateNewWord()">🎲 New Word</button>
+        <button class="btn clear-btn" onclick="clearTyping()">🗑️ Clear</button>
+        <button class="btn difficulty-btn" onclick="changeDifficulty()">⚙️ Change Level</button>
+        <button class="btn difficulty-btn" onclick="toggleTranslation()">🌍 Toggle Translation</button>
+    </div>
+
+    <script>
+        // Game state
+        let currentWord = '';
+        let typedChars = '';
+        let currentPosition = 0;
+        let correctCount = 0;
+        let mistakeCount = 0;
+        let wordsCompleted = 0;
+        let streak = 0;
+        let difficulty = 0; // 0=easy, 1=medium, 2=hard
+        let userEmail = ''; // User's email for API limits
+
+        // Word lists by difficulty
+        const wordLists = {
+            easy: ['CAT', 'DOG', 'SUN', 'BOX', 'HAT', 'BAT', 'CUP', 'PEN', 'EGG', 'TOY', 'CAR', 'BUS', 'BAG', 'BED', 'EYE'],
+            medium: ['APPLE', 'HOUSE', 'WATER', 'HAPPY', 'FUNNY', 'MOUSE', 'CHAIR', 'PLANT', 'SMILE', 'FRIEND', 'MAGIC', 'PARTY'],
+            hard: ['ELEPHANT', 'COMPUTER', 'RAINBOW', 'BIRTHDAY', 'ADVENTURE', 'BUTTERFLY', 'MOUNTAIN', 'WONDERFUL', 'PLAYGROUND']
+        };
+
+        const difficultyNames = ['Easy Mode', 'Medium Mode', 'Hard Mode'];
+        
+        // Translation state
+        let currentTranslation = '';
+        let showTranslation = true;
+
+        // Audio context for sounds
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let isAudioEnabled = false;
+
+        function initAudio() {
+            if (!isAudioEnabled) {
+                audioContext.resume();
+                isAudioEnabled = true;
+            }
+        }
+
+        function playSound(frequency = 440, duration = 200, type = 'sine') {
+            if (!isAudioEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+
+        function playCorrectSound() {
+            playSound(523.25, 150, 'sine'); // C note
+        }
+
+        function playIncorrectSound() {
+            playSound(200, 300, 'sawtooth'); // Error sound
+        }
+
+        function playWordCompleteSound() {
+            playSound(523.25, 150, 'sine'); // C
+            setTimeout(() => playSound(659.25, 150, 'sine'), 150); // E
+            setTimeout(() => playSound(783.99, 200, 'sine'), 300); // G
+        }
+
+        async function translateWord(word) {
+            try {
+                // Using a CORS proxy to bypass browser restrictions + MyMemory API
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                let apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ru`;
+                
+                // Add email if provided by user
+                if (userEmail && userEmail.includes('@')) {
+                    apiUrl += `&de=${encodeURIComponent(userEmail)}`;
+                }
+                
+                const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
+                const data = await response.json();
+                
+                if (data.responseStatus === 200 && data.responseData) {
+                    return data.responseData.translatedText;
+                } else {
+                    return 'Translation not available';
+                }
+            } catch (error) {
+                console.log('Translation failed:', error);
+                // Fallback to offline translations for common words
+                return getOfflineTranslation(word);
+            }
+        }
+
+        function getOfflineTranslation(word) {
+            // Backup translations for common words when API fails
+            const translations = {
+                'CAT': 'кошка', 'DOG': 'собака', 'SUN': 'солнце', 'BOX': 'коробка', 'HAT': 'шляпа',
+                'BAT': 'летучая мышь', 'CUP': 'чашка', 'PEN': 'ручка', 'EGG': 'яйцо', 'TOY': 'игрушка',
+                'CAR': 'машина', 'BUS': 'автобус', 'BAG': 'сумка', 'BED': 'кровать', 'EYE': 'глаз',
+                'APPLE': 'яблоко', 'HOUSE': 'дом', 'WATER': 'вода', 'HAPPY': 'счастливый', 'FUNNY': 'смешной',
+                'MOUSE': 'мышь', 'CHAIR': 'стул', 'PLANT': 'растение', 'SMILE': 'улыбка', 'FRIEND': 'друг',
+                'MAGIC': 'магия', 'PARTY': 'вечеринка', 'ELEPHANT': 'слон', 'COMPUTER': 'компьютер',
+                'RAINBOW': 'радуга', 'BIRTHDAY': 'день рождения', 'ADVENTURE': 'приключение',
+                'BUTTERFLY': 'бабочка', 'MOUNTAIN': 'гора', 'WONDERFUL': 'замечательный', 'PLAYGROUND': 'игровая площадка'
+            };
+            
+            return translations[word.toUpperCase()] || 'перевод недоступен';
+        }
+
+        async function generateNewWord() {
+            const difficultyKey = Object.keys(wordLists)[difficulty];
+            const words = wordLists[difficultyKey];
+            
+            // Make sure we have words and select one
+            if (!words || words.length === 0) {
+                currentWord = 'CAT'; // Fallback word
+            } else {
+                currentWord = words[Math.floor(Math.random() * words.length)];
+            }
+            
+            typedChars = '';
+            currentPosition = 0;
+            
+            // Display the word immediately
+            displayWord();
+            clearTyping();
+            
+            // Get translation if enabled (async)
+            if (showTranslation) {
+                document.getElementById('translationText').textContent = 'Getting translation...';
+                try {
+                    currentTranslation = await translateWord(currentWord);
+                    document.getElementById('translationText').textContent = `(${currentTranslation})`;
+                } catch (error) {
+                    document.getElementById('translationText').textContent = `(${getOfflineTranslation(currentWord)})`;
+                }
+            } else {
+                document.getElementById('translationText').textContent = '';
+            }
+        }
+
+        function displayWord() {
+            const wordDisplay = document.getElementById('currentWord');
+            wordDisplay.innerHTML = '';
+            
+            // Make sure we have a valid word
+            if (!currentWord || currentWord.length === 0) {
+                wordDisplay.textContent = 'Loading...';
+                return;
+            }
+            
+            for (let i = 0; i < currentWord.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'word-letter';
+                span.textContent = currentWord[i];
+                
+                if (i < currentPosition) {
+                    span.classList.add('correct');
+                } else if (i === currentPosition) {
+                    span.classList.add('current');
+                } else {
+                    span.classList.add('pending');
+                }
+                
+                wordDisplay.appendChild(span);
+            }
+        }
+
+        function processKeyPress(key) {
+            initAudio();
+            
+            if (currentPosition >= currentWord.length) return;
+            
+            const expectedChar = currentWord[currentPosition];
+            const keyElement = document.querySelector(`[data-key="${key}"]`);
+            
+            if (key === expectedChar) {
+                // Correct key
+                correctCount++;
+                currentPosition++;
+                typedChars += key;
+                
+                playCorrectSound();
+                
+                if (keyElement && keyElement.classList) {
+                    keyElement.classList.add('correct-key');
+                    setTimeout(() => {
+                        if (keyElement && keyElement.classList) {
+                            keyElement.classList.remove('correct-key');
+                        }
+                    }, 500);
+                }
+                
+                if (currentPosition >= currentWord.length) {
+                    // Word completed!
+                    wordsCompleted++;
+                    streak++;
+                    showFeedback('🎉 Perfect! 🎉', 'feedback-complete');
+                    playWordCompleteSound();
+                    
+                    setTimeout(() => {
+                        generateNewWord();
+                    }, 2000);
+                } else {
+                    showFeedback('✅ Correct!', 'feedback-success');
+                }
+            } else {
+                // Incorrect key
+                mistakeCount++;
+                streak = 0;
+                
+                playIncorrectSound();
+                
+                if (keyElement && keyElement.classList) {
+                    keyElement.classList.add('incorrect-key');
+                    setTimeout(() => {
+                        if (keyElement && keyElement.classList) {
+                            keyElement.classList.remove('incorrect-key');
+                        }
+                    }, 500);
+                }
+                
+                // Highlight incorrect letter
+                const wordLetters = document.querySelectorAll('.word-letter');
+                if (wordLetters[currentPosition] && wordLetters[currentPosition].classList) {
+                    wordLetters[currentPosition].classList.add('incorrect');
+                    setTimeout(() => {
+                        if (wordLetters[currentPosition] && wordLetters[currentPosition].classList) {
+                            wordLetters[currentPosition].classList.remove('incorrect');
+                        }
+                    }, 1000);
+                }
+                
+                showFeedback('❌ Try Again!', 'feedback-error');
+            }
+            
+            displayWord();
+            updateTypedText();
+            updateStats();
+        }
+
+        function updateTypedText() {
+            const typedTextDiv = document.getElementById('typedText');
+            typedTextDiv.innerHTML = '';
+            
+            for (let i = 0; i < typedChars.length; i++) {
+                const span = document.createElement('span');
+                span.textContent = typedChars[i];
+                span.style.color = '#2ecc71';
+                span.style.fontWeight = 'bold';
+                span.style.margin = '2px';
+                typedTextDiv.appendChild(span);
+            }
+        }
+
+        function showFeedback(message, className) {
+            const existing = document.querySelector('.feedback-message');
+            if (existing) existing.remove();
+            
+            const feedback = document.createElement('div');
+            feedback.className = `feedback-message ${className}`;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.remove();
+            }, 1500);
+        }
+
+        function updateStats() {
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('mistakeCount').textContent = mistakeCount;
+            document.getElementById('wordsCompleted').textContent = wordsCompleted;
+            document.getElementById('streak').textContent = streak;
+        }
+
+        function clearTyping() {
+            typedChars = '';
+            currentPosition = 0;
+            updateTypedText();
+            displayWord();
+        }
+
+        function toggleTranslation() {
+            showTranslation = !showTranslation;
+            if (showTranslation) {
+                generateNewWord(); // Regenerate with translation
+            } else {
+                document.getElementById('translationText').textContent = '';
+            }
+        }
+
+        function saveEmail() {
+            const emailInput = document.getElementById('userEmail');
+            const email = emailInput.value.trim();
+            const statusElement = document.getElementById('apiStatus');
+            
+            if (email === '') {
+                userEmail = '';
+                statusElement.textContent = 'Basic (5k chars/day)';
+                statusElement.className = 'api-status basic';
+                showFeedback('📧 Using anonymous mode', 'feedback-success');
+                return;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showFeedback('❌ Please enter a valid email', 'feedback-error');
+                return;
+            }
+            
+            userEmail = email;
+            statusElement.textContent = 'Premium (50k chars/day)';
+            statusElement.className = 'api-status premium';
+            showFeedback('✅ Email saved! Premium limits active', 'feedback-success');
+        }
+
+        function loadSavedEmail() {
+            // No localStorage in artifacts - just initialize empty
+            userEmail = '';
+        }
+
+        // Event listeners
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('click', () => {
+                const keyValue = key.getAttribute('data-key');
+                processKeyPress(keyValue);
+                
+                key.classList.add('pressed');
+                setTimeout(() => key.classList.remove('pressed'), 300);
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            // Don't capture keystrokes when user is typing in input fields
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return; // Let the input field handle the keystroke normally
+            }
+            
+            let key = event.key.toUpperCase();
+            
+            if (key === 'BACKSPACE') {
+                event.preventDefault();
+                return;
+            }
+            
+            if (key === ' ' || key === 'ENTER') {
+                key = ' ';
+            }
+            
+            if (key.length === 1 && /[A-Z ]/.test(key)) {
+                event.preventDefault();
+                processKeyPress(key);
+                
+                const virtualKey = document.querySelector(`[data-key="${key}"]`);
+                if (virtualKey && virtualKey.classList) {
+                    virtualKey.classList.add('pressed');
+                    setTimeout(() => {
+                        if (virtualKey && virtualKey.classList) {
+                            virtualKey.classList.remove('pressed');
+                        }
+                    }, 300);
+                }
+            }
+        });
+
+        function toggleTranslation() {
+            showTranslation = !showTranslation;
+            if (showTranslation) {
+                generateNewWord(); // Regenerate with translation
+            } else {
+                document.getElementById('translationText').textContent = '';
+            }
+        }
+
+        function changeDifficulty() {
+            difficulty = (difficulty + 1) % 3;
+            document.getElementById('difficultyText').textContent = difficultyNames[difficulty];
+            generateNewWord();
+        }
+
+        // Initialize game when page loads
+        setTimeout(() => {
+            loadSavedEmail();
+            generateNewWord();
+            updateStats();
+        }, 100);
+        updateStats();
+    </script>
+</body>
+</html>
